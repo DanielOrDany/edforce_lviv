@@ -62,7 +62,7 @@ def findOnwer():
 
         email = item['email']
         owner_password = item['password']   
-
+        print(datetime.utcnow())
         print(email)
         print(owner_password)
 
@@ -93,6 +93,47 @@ def findOnwer():
 
     return jsonify({'result': result})
 
+@app.route('/owners/find-owner-by-email', methods=['POST'])
+def findOnwerByEmail():
+    result = ""
+    data = request.get_json()
+    print('beckend')
+    print(data)
+    for item in data:
+        print(item)
+
+        email = item['email']
+        owner_password = item['password']   
+        print(datetime.utcnow())
+        print(email)
+
+        con = None
+        try:
+            con = db.connect( database = "d99gqkbd6vao8t",
+            user = "tjdzfptfviuxhq",
+            password = "013755cf03bd0a8c0d4b0d446921e61702718a849c0eacd2baf477271e601c5d",
+            host = "ec2-46-137-113-157.eu-west-1.compute.amazonaws.com",
+            port = "5432")
+            cursor = con.cursor()
+            cursor.execute("SELECT * FROM owners WHERE email = '" + str(email) + "';")
+            rows = cursor.fetchall()
+            for row in rows:
+                if row == None:
+                    console.log('nobody')
+                    return jsonify({'result': 'nobody'})
+
+                else:
+                    print(row[3])
+                    return jsonify({'result': 'user exists'})
+
+        except (Exception, db.DatabaseError) as error:
+            print(error)
+
+        if con is not None:
+            con.close()
+
+    return jsonify({'result': result})
+
 @app.route('/test', methods=['POST'])
 def addTest():
     data = request.get_json()
@@ -105,11 +146,13 @@ def addTest():
         answer = item['answer']
         test_code = item['testCode']
         status = item['status']
+        owner_email = item['owner_email']
         print(ask)
         print(answers)
         print(answer)
         print(test_code)
         print(status)
+        print(owner_email)
         con = None
         try:
             con = db.connect( database = "d99gqkbd6vao8t",
@@ -118,8 +161,8 @@ def addTest():
             host = "ec2-46-137-113-157.eu-west-1.compute.amazonaws.com",
             port = "5432")
             cursor = con.cursor()
-            cursor.execute("INSERT INTO tests" + "(id, ask, answers, answer, test_code, status)" +
-            " VALUES ('"+str(uuid.uuid4())+"','"+str(ask)+"','"+str(answers)+"','"+str(answer)+"','"+str(test_code)+"','"+str(status)+"');")
+            cursor.execute("INSERT INTO tests" + "(id, ask, answers, answer, test_code, status, owner_email)" +
+            " VALUES ('"+str(uuid.uuid4())+"','"+str(ask)+"','"+str(answers)+"','"+str(answer)+"','"+str(test_code)+"','"+str(status)+"','"+str(owner_email)+"');")
             con.commit()
         except (Exception, db.DatabaseError) as error:
             print(error)

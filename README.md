@@ -1,2 +1,0 @@
-# edforce_lviv
-edforce 
